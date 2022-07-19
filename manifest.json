@@ -1,0 +1,20 @@
+{
+    "name": "Deps",
+    "description": "A browser extension for showing dependencies.",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "permissions": [
+        "activeTab"
+    ],
+    "action": {
+        "default_title": "Svelte Extension",
+        "default_icon": "favicon.png",
+        "default_popup": "index.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://github.com/*"],
+            "js": ["main.js"]
+        }
+    ]
+}
