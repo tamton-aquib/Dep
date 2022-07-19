@@ -16,5 +16,8 @@
             "matches": ["*://github.com/*"],
             "js": ["main.js"]
         }
-    ]
+    ],
+    "icons": {
+        "48": "./icons/border.png"
+    }
 }

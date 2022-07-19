@@ -39,10 +39,8 @@
             active: true,
             currentWindow: true,
         });
-        // const url = "https://github.com/ChristianChiarulli/colorgen-nvim";
         // const url = "https://github.com/tamton-aquib/veldora";
 
-        // status = tab.url.includes("github.com") ? "Yes" : "No";
         let nice = tab.url.match(/github.com.(.*)\/(.*)/);
         if (nice) {
             let user = nice[1];
@@ -61,7 +59,7 @@
 
     <table>
         {#each Object.keys(deps) as dep}
-            <tr>
+            <tr class="sect">
                 <td class="dep">{dep}</td>
                 <td class="ver">
                     {#if typeof deps[dep] == "string"}
@@ -76,9 +74,12 @@
 </main>
 
 <style>
+    :global(*) {
+        background-color: #11121d;
+    }
     .dep,
     .ver {
-        font-size: 2rem;
+        font-size: 1.7rem;
     }
     .dep {
         color: #986fec;
