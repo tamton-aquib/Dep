@@ -2,9 +2,8 @@
     import { onMount } from "svelte";
     import toml from "toml";
 
-    let status = "click the button!";
+    let repoType = "click the button!";
     let user: string, repo: string;
-    let repoType: string;
     let deps = {};
     const stuff = {
         "Cargo.toml": "Rust",
@@ -18,6 +17,11 @@
             let sauce = await fetch(baseUrl + "main/" + file);
             if (sauce.status == 200) {
                 return [stuff[file], await sauce.text()];
+            } else {
+                sauce = await fetch(baseUrl + "master/" + file);
+                if (sauce.status == 200) {
+                    return [stuff[file], await sauce.text()];
+                }
             }
 
             // if (sauce.status != 200)
@@ -30,7 +34,8 @@
         // TODO: not hardcode branchname
         request().then((data) => {
             if (data == "404: Not Found") {
-                status = "not a rust,js repo!";
+                // repoType = "not a rust,js repo!";
+                repoType = "nil";
                 return;
             }
 
@@ -38,17 +43,16 @@
                 if (data[0] == "Rust") {
                     let nice = toml.parse(data[1]);
                     deps = nice["dependencies"];
-                    status = "Rust repo found!";
-                    repoType = "Rust";
+                    // repoType = "Rust repo found!";
+                    repoType = "Rust!";
                 } else if (data[0] == "JS") {
                     let nice = JSON.parse(data[1]);
                     deps = nice["dependencies"];
-                    status = "JS repo found!";
-                    repoType = "JS";
+                    // repoType = "JS repo found!";
+                    repoType = "JS!";
                 }
-                // return "Rust";
             } catch (e) {
-                status = "parsing toml failed!";
+                repoType = "parsing toml/json failed!";
             }
         });
     };
@@ -59,9 +63,9 @@
             currentWindow: true,
         });
 
-        // let reponame = "veldora";
-        // let reponame = "tamton-aquib.github.io";
-        // const tab = { url: `https://github.com/tamton-aquib/${reponame}` };
+        // let reponame = "tamton-aquib/veldora";
+        // let reponame = "tamton-aquib/tamton-aquib.github.io";
+        // const tab = { url: `https://github.com/${reponame}` };
 
         let matches = tab.url.match(/github.com.(.*)\/(.*)/);
         if (matches) {
@@ -70,13 +74,13 @@
             fetchStuff();
         } else {
             console.log("Match failed!");
-            status = "Not a git repo!";
+            repoType = "Not a git repo!";
         }
     });
 </script>
 
 <main>
-    <h2>Status: {status}</h2>
+    <h2>Status: {repoType}</h2>
 
     <table>
         {#each Object.keys(deps) as dep}

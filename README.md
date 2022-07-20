@@ -17,4 +17,4 @@ In brave:
 - [ ] Support for firefox, etc.
 - [ ] Better styling (priority: high).
 - [ ] item info on hover?
-- [ ] Better structuring for multiple sources.
+- [ ] Better structuring for multiple sources (priority: high).
