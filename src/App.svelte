@@ -1,54 +1,75 @@
 <script lang="ts">
     import { onMount } from "svelte";
-
     import toml from "toml";
 
     let status = "click the button!";
+    let user: string, repo: string;
+    let repoType: string;
     let deps = {};
-
-    const request = async (user: string, repo: string) => {
-        let nice = await fetch(
-            `https://raw.githubusercontent.com/${user}/${repo}/main/Cargo.toml`
-        );
-        if (nice.status != 200) {
-            nice = await fetch(
-                `https://raw.githubusercontent.com/${user}/${repo}/master/Cargo.toml`
-            );
-        }
-        return await nice.text();
+    const stuff = {
+        "Cargo.toml": "Rust",
+        "package.json": "JS",
     };
-    const fetchStuff = async (user: string, repo: string) => {
+
+    const request = async () => {
+        let baseUrl = `https://raw.githubusercontent.com/${user}/${repo}/`;
+
+        for (const file of Object.keys(stuff)) {
+            let sauce = await fetch(baseUrl + "main/" + file);
+            if (sauce.status == 200) {
+                return [stuff[file], await sauce.text()];
+            }
+
+            // if (sauce.status != 200)
+            // sauce = await fetch(baseUrl + "master/" + file);
+        }
+        return "404: Not Found";
+    };
+
+    const fetchStuff = async () => {
         // TODO: not hardcode branchname
-        request(user, repo).then((data) => {
+        request().then((data) => {
             if (data == "404: Not Found") {
-                status = "not a rust repo!";
+                status = "not a rust,js repo!";
                 return;
             }
 
             try {
-                let nice = toml.parse(data);
-                deps = nice["dependencies"];
+                if (data[0] == "Rust") {
+                    let nice = toml.parse(data[1]);
+                    deps = nice["dependencies"];
+                    status = "Rust repo found!";
+                    repoType = "Rust";
+                } else if (data[0] == "JS") {
+                    let nice = JSON.parse(data[1]);
+                    deps = nice["dependencies"];
+                    status = "JS repo found!";
+                    repoType = "JS";
+                }
+                // return "Rust";
             } catch (e) {
-                console.log("Coldnt not parse toml: " + e);
                 status = "parsing toml failed!";
             }
         });
     };
+
     onMount(async () => {
         const [tab] = await chrome.tabs.query({
             active: true,
             currentWindow: true,
         });
-        // const url = "https://github.com/tamton-aquib/veldora";
 
-        let nice = tab.url.match(/github.com.(.*)\/(.*)/);
-        if (nice) {
-            let user = nice[1];
-            let repo = nice[2];
-            fetchStuff(user, repo);
-            status = "Rust repo found!";
+        // let reponame = "veldora";
+        // let reponame = "tamton-aquib.github.io";
+        // const tab = { url: `https://github.com/tamton-aquib/${reponame}` };
+
+        let matches = tab.url.match(/github.com.(.*)\/(.*)/);
+        if (matches) {
+            user = matches[1];
+            repo = matches[2];
+            fetchStuff();
         } else {
-            console.log("Match failed lol!");
+            console.log("Match failed!");
             status = "Not a git repo!";
         }
     });
@@ -60,7 +81,9 @@
     <table>
         {#each Object.keys(deps) as dep}
             <tr class="sect">
-                <td class="dep">{dep}</td>
+                <a target="_blank" href="https://crates.io/crates/{dep}"
+                    ><td class="dep">{dep}</td></a
+                >
                 <td class="ver">
                     {#if typeof deps[dep] == "string"}
                         {deps[dep]}
@@ -77,11 +100,11 @@
     :global(*) {
         background-color: #11121d;
     }
-    .dep,
-    .ver {
-        font-size: 1.7rem;
-    }
     .dep {
         color: #986fec;
+    }
+    .dep,
+    .ver {
+        font-size: 1.3em;
     }
 </style>

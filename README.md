@@ -12,6 +12,7 @@ In brave:
 
 ## Todo
 - [ ] Support for package.json, pyproject.toml, pubspec.yaml
+- [ ] Support for branches. (currently only main).
 - [ ] Support for workspaces.
 - [ ] Support for firefox, etc.
 - [ ] Better styling (priority: high).
