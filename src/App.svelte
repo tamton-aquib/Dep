@@ -5,32 +5,29 @@
     let repoType = "click the button!";
     let user: string, repo: string;
     let deps = {};
-    const stuff = {
+    const techStack = {
         "Cargo.toml": "Rust",
-        "package.json": "JS",
+        "package.json": "JavaScript",
     };
 
     const request = async () => {
         let baseUrl = `https://raw.githubusercontent.com/${user}/${repo}/`;
 
-        for (const file of Object.keys(stuff)) {
+        for (const file of Object.keys(techStack)) {
             let sauce = await fetch(baseUrl + "main/" + file);
             if (sauce.status == 200) {
-                return [stuff[file], await sauce.text()];
+                return [techStack[file], await sauce.text()];
             } else {
                 sauce = await fetch(baseUrl + "master/" + file);
                 if (sauce.status == 200) {
-                    return [stuff[file], await sauce.text()];
+                    return [techStack[file], await sauce.text()];
                 }
             }
-
-            // if (sauce.status != 200)
-            // sauce = await fetch(baseUrl + "master/" + file);
         }
         return "404: Not Found";
     };
 
-    const fetchStuff = async () => {
+    const fetchtechStack = async () => {
         // TODO: not hardcode branchname
         request().then((data) => {
             if (data == "404: Not Found") {
@@ -43,12 +40,11 @@
                 if (data[0] == "Rust") {
                     let nice = toml.parse(data[1]);
                     deps = nice["dependencies"];
-                    // repoType = "Rust repo found!";
+                    
                     repoType = "Rust!";
                 } else if (data[0] == "JS") {
                     let nice = JSON.parse(data[1]);
                     deps = nice["dependencies"];
-                    // repoType = "JS repo found!";
                     repoType = "JS!";
                 }
             } catch (e) {
@@ -63,15 +59,11 @@
             currentWindow: true,
         });
 
-        // let reponame = "tamton-aquib/veldora";
-        // let reponame = "tamton-aquib/tamton-aquib.github.io";
-        // const tab = { url: `https://github.com/${reponame}` };
-
         let matches = tab.url.match(/github.com.(.*)\/(.*)/);
         if (matches) {
             user = matches[1];
             repo = matches[2];
-            fetchStuff();
+            fetchtechStack();
         } else {
             console.log("Match failed!");
             repoType = "Not a git repo!";
@@ -80,7 +72,7 @@
 </script>
 
 <main>
-    <h2>Status: {repoType}</h2>
+    <h2>{repoType}</h2>
 
     <table>
         {#each Object.keys(deps) as dep}
